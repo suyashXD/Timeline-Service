@@ -1,0 +1,10 @@
+type Query {
+  getTimeline(userId: ID!): [Post!]!
+}
+
+type Post {
+  id: ID!
+  content: String!
+  timestamp: Int!
+  authorId: String!
+}
