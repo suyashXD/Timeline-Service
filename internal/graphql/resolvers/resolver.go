@@ -3,11 +3,10 @@ package resolvers
 import (
     "context"
     "sort"
-    "time"
     "sync"
 
     pb "github.com/suyashXD/Timeline-Service/internal/grpc/proto/notification"
-    "google.golang.org/grpc"
+
 )
 
 // PostResolver maps gRPC Post to GraphQL Post
