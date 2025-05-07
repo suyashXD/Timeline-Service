@@ -7,8 +7,8 @@ import (
 
 	"google.golang.org/grpc"
 
-	"github.com/Timeline-Service/internal/grpc/proto/notification"
-	"github.com/Timeline-Service/internal/grpc/server"
+	"github.com/suyashXD/Timeline-Service/internal/grpc/proto/notification"
+	"github.com/suyashXD/Timeline-Service/internal/grpc/server"
 )
 
 const defaultPort = "50051"
