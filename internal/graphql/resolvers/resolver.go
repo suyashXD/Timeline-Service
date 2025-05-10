@@ -22,6 +22,13 @@ type Resolver struct {
     FollowMap  map[string][]string
 }
 
+func New(client pb.PostServiceClient, followMap map[string][]string) *Resolver {
+    return &Resolver{
+        GRPCClient: client,
+        FollowMap:  followMap,
+    }
+}
+
 func (r *Resolver) GetTimeline(ctx context.Context, userID string) ([]*PostResolver, error) {
     followedUsers := r.FollowMap[userID]
     var wg sync.WaitGroup

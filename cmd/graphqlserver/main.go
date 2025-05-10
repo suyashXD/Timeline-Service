@@ -45,7 +45,7 @@ func main() {
 	timelineService := service.NewTimelineService(dataStore, postClient)
 
 	// Initialize the resolver
-	resolver := resolvers.NewRoot(timelineService)
+	resolver := resolvers.New(timelineService)
 
 	// Create GraphQL server handler
 	srv := handler.NewDefaultServer(generated.NewExecutableSchema(generated.Config{Resolvers: resolver}))
