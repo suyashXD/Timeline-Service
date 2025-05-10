@@ -2,10 +2,12 @@ package resolvers
 
 import (
     "context"
-    "sort"
-    "sync"
+    // "sort"
+    // "sync"
 
-    pb "github.com/suyashXD/Timeline-Service/internal/grpc/proto/notification"
+    // pb "github.com/suyashXD/Timeline-Service/internal/grpc/proto/notification"
+    "github.com/suyashXD/Timeline-Service/internal/service"
+    // "github.com/suyashXD/Timeline-Service/internal/models"
 
 )
 
@@ -18,57 +20,30 @@ type PostResolver struct {
 }
 
 type Resolver struct {
-    GRPCClient pb.PostServiceClient
-    FollowMap  map[string][]string
+    timelineService *service.TimelineService
 }
 
-func New(client pb.PostServiceClient, followMap map[string][]string) *Resolver {
+func New(timelineService *service.TimelineService) *Resolver {
     return &Resolver{
-        GRPCClient: client,
-        FollowMap:  followMap,
+        timelineService: timelineService,
     }
 }
 
 func (r *Resolver) GetTimeline(ctx context.Context, userID string) ([]*PostResolver, error) {
-    followedUsers := r.FollowMap[userID]
-    var wg sync.WaitGroup
-    mu := sync.Mutex{}
-    var posts []*pb.Post
-
-    for _, uid := range followedUsers {
-        wg.Add(1)
-        go func(uid string) {
-            defer wg.Done()
-            resp, err := r.GRPCClient.ListPostsByUser(ctx, &pb.ListPostsRequest{UserId: uid})
-            if err != nil {
-                return
-            }
-            mu.Lock()
-            posts = append(posts, resp.Posts...)
-            mu.Unlock()
-        }(uid)
+    // Use the TimelineService to get the timeline
+    posts, err := r.timelineService.GetUserTimeline(ctx, userID)
+    if err != nil {
+        return nil, err
     }
-
-    wg.Wait()
-
-    // Sort posts by timestamp (newest first)
-    sort.Slice(posts, func(i, j int) bool {
-        return posts[i].Timestamp > posts[j].Timestamp
-    })
-
-    // Limit to 20
-    if len(posts) > 20 {
-        posts = posts[:20]
-    }
-
+    
     // Convert to GraphQL format
     var timeline []*PostResolver
     for _, p := range posts {
         timeline = append(timeline, &PostResolver{
-            ID:        p.Id,
+            ID:        p.ID,
             Content:   p.Content,
-            Timestamp: int(p.Timestamp),
-            AuthorID:  p.AuthorId,
+            Timestamp: p.Timestamp,
+            AuthorID:  p.AuthorID,
         })
     }
 
